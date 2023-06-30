@@ -1,0 +1,97 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  background: rgba(0,0,0,0.1);
+}
+
+h1 {
+  margin: 0;
+  padding: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+a {
+  color: rgba(0,0,0,0.9);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+#sellers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.seller {
+  display: inline-block;
+  padding: 16px;
+  border-radius: 8px;
+  background: white;
+  opacity: 0.6;
+  transition: opacity 250ms ease-in-out;
+  overflow: hidden;
+}
+
+.seller:hover {
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  opacity: 1;
+}
+
+.seller .avatar a {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+}
+
+.seller .avatar img {
+  width: 48px;
+  border-radius: 24px;
+}
+
+.seller .store {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.seller .store span:first-child {
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.seller .store small {
+  display: none;
+}
+
+.seller .summary {
+  flex-grow: 0;
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  font-size: 0.8em;
+}
+
+.products {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  overflow-x: scroll;
+  gap: 16px;
+}
+
+.products li img {
+  width: 200px;  
+}
+
+.products li h1 {
+  height: 2.4em;
+  overflow: hidden;
+}
