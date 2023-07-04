@@ -75,15 +75,15 @@ async function init() {
   const activeSellerRows = sellerRows.filter( row => row.get('skip') !== 'TRUE' );
   console.log(INFO(`Scraping ${activeSellerRows.length}/${sellerRows.length} sellers.`));
   for( let i = 0; i < activeSellerRows.length; i++ ) {
-    const row = sellerRows[i];
+    const row = activeSellerRows[i];
     await scrapeSeller( row );
   }
 
   // For each product row, scrape any data that is missing
   const activeProductRows = productRows.filter( row => row.get('skip') !== 'TRUE' );
   console.log(INFO(`Scraping ${activeProductRows.length}/${productRows.length} products.`));
-  for( let i=0; i < productRows.length; i++ ) {
-    const row = productRows[i];
+  for( let i=0; i < activeProductRows.length; i++ ) {
+    const row = activeProductRows[i];
     await scrapeProduct( row, i );
   }
 }
