@@ -77,6 +77,7 @@ async function init() {
   for( let i = 0; i < activeSellerRows.length; i++ ) {
     const row = activeSellerRows[i];
     await scrapeSeller( row );
+    await delay();
   }
 
   // For each product row, scrape any data that is missing
@@ -85,7 +86,28 @@ async function init() {
   for( let i=0; i < activeProductRows.length; i++ ) {
     const row = activeProductRows[i];
     await scrapeProduct( row, i );
+    await delay()
   }
+}
+
+const log = {
+  write: (msg) => process.stdout.write(msg),
+  rewrite: (msg) => {
+    log.delete();
+    process.stdout.write(msg);
+  },
+  delete: () => {
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+  },
+  end: () => process.stdout.write("\n")
+}
+
+async function delay( ms ) {
+  ms = ms || Math.floor( Math.random() * 2000 ) + 4000;
+  // console.log(`Delaying ${ms}ms...`);
+  log.write(`Delaying ${ms}ms...`);
+  return new Promise( resolve => setTimeout( () => { log.delete(); resolve(); }, ms ) );
 }
 
 // Returns the sheet and rows for the given title
@@ -126,7 +148,8 @@ async function scrapeSeller( row ) {
   if( row.get('skip') === 'TRUE' ) return;
   
   const url = row.get('url');
-  console.log(`Scraping seller: ${url}`);
+  // console.log(`Scraping seller: ${url}`);
+  log.write(`Scraping seller: ${url}`);
 
   const $ = await loadURL( url );
   if( !$ ) return;
@@ -161,7 +184,9 @@ async function scrapeSeller( row ) {
 
   // Pull the data about the products from the page
   const productsHTML = $( selectors.products );
-  console.log(`Found ${productsHTML.length} products.`);
+  // console.log(`Found ${productsHTML.length} products.`);
+  
+  log.rewrite(`Scraping seller: ${row.get('username')}, ${ productsHTML.length} products`);
   
   // Array for collecting all of the new products that are found
   let products = [];
@@ -184,23 +209,17 @@ async function scrapeSeller( row ) {
   
       // check to see if it is already in the list
       // if( out.products.filter( p => p.url === out.url ).length > 0 )  return;
-      if( findProduct( 'link_href', out.link_href ) ) {
-        console.log(`Skipping product: "${out.link_href}" because it already exists.`);
-        return;
-      }
+      if( findProduct( 'link_href', out.link_href ) ) return;
   
-      if( !out.img_src ) {
-        console.log(`Skipping product: "${out.link_href}" because it appears empty.`);
-        return;
-      }
+      if( !out.img_src ) return;
 
-      console.log(`Adding product: "${out.title}"`);
-      // out.products.push( out );
       products.push(out);
     } catch {
       console.log(`Error scraping product #${i}: ${product.text().trim().split("\n")[0]}`);
     }
   });
+
+  log.end();
 
   await productSheet.addRows( products );
 }
@@ -208,6 +227,9 @@ async function scrapeSeller( row ) {
 async function scrapeProduct( row, i ) {
   // Skip if the row is marked as "skip"
   if( row.get('skip') === 'TRUE' ) return;
+
+  // Once we process the row, set it to skip until it's manually flagged to be scraped
+  row.set('skip', 'TRUE');
 
   const url = row.get('link_href');
   console.log(`[${i}] Scraping product: ${url}`);
